@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About the Authors — Blessed International Ministries</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:     #0d1b2e;
+      --fg:     #f0f2f5;
+      --muted:  #7a8fa8;
+      --accent: #4d9fff;
+      --accent2:#bf5af2;
+      --card:   #122040;
+      --border: rgba(255,255,255,0.07);
+      --font:   "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 58px 58px;
+      color: var(--fg);
+      font-family: var(--font);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── Custom cursor ── */
+    #cursor {
+      position: fixed; width: 10px; height: 10px;
+      background: var(--fg); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.08s, width 0.2s, height 0.2s;
+    }
+    #cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border: 1px solid rgba(255,255,255,0.18); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform 0.18s ease-out, width 0.25s, height 0.25s;
+    }
+    body:has(a:hover) #cursor { width: 16px; height: 16px; background: var(--accent); }
+    body:has(a:hover) #cursor-ring { width: 52px; height: 52px; border-color: var(--accent); }
+
+    /* ─── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 44px;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(13,27,46,0.88);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 17px; font-weight: 600; letter-spacing: -0.3px;
+      color: var(--fg); text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      font-size: 13px; font-weight: 400; color: var(--muted);
+      text-decoration: none; letter-spacing: 0.2px; transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--fg); }
+
+    /* ─── Page layout ── */
+    main { padding: 140px 44px 120px; max-width: 1100px; margin: 0 auto; }
+
+    .page-eyebrow {
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent); font-weight: 500; margin-bottom: 20px;
+    }
+    .page-title {
+      font-size: clamp(42px, 6vw, 80px);
+      font-weight: 700; letter-spacing: -2.5px; line-height: 1.05;
+      background: linear-gradient(160deg, #ffffff 30%, #90b4d0 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 24px;
+    }
+    .page-intro {
+      font-size: 18px; font-weight: 300; color: var(--muted);
+      line-height: 1.7; max-width: 640px; margin-bottom: 100px;
+    }
+
+    /* ─── Author cards ── */
+    .authors { display: flex; flex-direction: column; gap: 2px; }
+
+    .author-card {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 64px;
+      padding: 64px 0;
+      border-top: 1px solid var(--border);
+      align-items: start;
+    }
+    .author-card:last-child { border-bottom: 1px solid var(--border); }
+
+    .author-photo {
+      width: 200px; height: 200px;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .author-photo img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .author-photo-placeholder {
+      font-size: 56px; font-weight: 700; letter-spacing: -2px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .author-info { display: flex; flex-direction: column; gap: 16px; }
+    .author-name {
+      font-size: clamp(26px, 3vw, 38px);
+      font-weight: 700; letter-spacing: -1px; line-height: 1.1;
+    }
+    .author-role {
+      font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--accent); font-weight: 500;
+    }
+    .author-bio {
+      font-size: 15px; font-weight: 300; color: var(--muted);
+      line-height: 1.75; max-width: 560px;
+    }
+    .author-books {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;
+    }
+    .author-book-tag {
+      font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--accent2); font-weight: 500;
+      padding: 6px 14px;
+      border: 1px solid rgba(191,90,242,0.25);
+      border-radius: 980px;
+    }
+
+    /* ─── Footer ── */
+    footer {
+      padding: 60px 44px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      border-top: 1px solid var(--border);
+      max-width: 1100px; margin: 0 auto;
+    }
+    .footer-wordmark {
+      font-size: 40px; font-weight: 700; letter-spacing: -2px;
+      color: rgba(255,255,255,0.05); user-select: none;
+    }
+    .footer-right { text-align: right; }
+    .footer-right span { font-size: 13px; color: var(--muted); }
+
+    /* ─── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 2px; }
+
+    /* ─── Mobile ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+
+      main { padding: 100px 20px 80px; }
+
+      .author-card {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 48px 0;
+      }
+      .author-photo { width: 80px; height: 80px; border-radius: 12px; }
+      .author-photo-placeholder { font-size: 32px; }
+
+      footer {
+        padding: 40px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .footer-right { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <nav>
+    <a class="nav-logo" href="https://www.blessedintl.com"><span>Blessed </span>International Ministries</a>
+    <ul class="nav-links">
+      <li><a href="index.html#book-section">Books</a></li>
+      <li><a href="index.html#orbit-section">Foundation</a></li>
+      <li><a href="index.html#principles">Declarations</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <p class="page-eyebrow">The People Behind the Mission</p>
+    <h1 class="page-title">About the Authors</h1>
+    <p class="page-intro">
+      Meet the voices shaping the revival movement — authors, teachers, and leaders
+      committed to equipping a generation for supernatural encounter.
+    </p>
+
+    <div class="authors">
+
+      <div class="author-card">
+        <div class="author-photo">
+          <!-- Replace with: <img src="authors/author1.jpg" alt="Author Name"> -->
+          <span class="author-photo-placeholder">A1</span>
+        </div>
+        <div class="author-info">
+          <p class="author-role">Lead Author</p>
+          <h2 class="author-name">Author Name</h2>
+          <p class="author-bio">
+            A brief biography about this author goes here. Describe their background,
+            their calling, their ministry experience, and what drives their writing.
+            This space is for the story behind the books.
+          </p>
+          <div class="author-books">
+            <span class="author-book-tag">Daily Supernatural</span>
+            <span class="author-book-tag">Activation Guide</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="author-card">
+        <div class="author-photo">
+          <!-- Replace with: <img src="authors/author2.jpg" alt="Author Name"> -->
+          <span class="author-photo-placeholder">A2</span>
+        </div>
+        <div class="author-info">
+          <p class="author-role">Contributing Author</p>
+          <h2 class="author-name">Author Name</h2>
+          <p class="author-bio">
+            A brief biography about this author goes here. Describe their background,
+            their calling, their ministry experience, and what drives their writing.
+            This space is for the story behind the books.
+          </p>
+          <div class="author-books">
+            <span class="author-book-tag">Guarding the Fire</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-wordmark">BIM</div>
+    <div class="footer-right">
+      <span>© 2026 Blessed International Ministries</span>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring   = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    (function loop() {
+      requestAnimationFrame(loop);
+      rx += (mx - rx) * 0.14; ry += (my - ry) * 0.14;
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+      ring.style.left = rx + 'px';   ring.style.top  = ry + 'px';
+    })();
+
+    // Fireworks on click
+    (function fireworks() {
+      const canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9990;';
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      resize(); window.addEventListener('resize', resize);
+      const bursts = [];
+      const COLORS = ['#4d9fff','#bf5af2','#ff9f0a','#30d158','#ff375f','#ffffff','#64d2ff'];
+      document.addEventListener('click', e => {
+        const count = 32 + Math.floor(Math.random() * 16);
+        const burst = [];
+        for (let i = 0; i < count; i++) {
+          const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+          const speed = 2 + Math.random() * 5;
+          burst.push({ x: e.clientX, y: e.clientY, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 1.5, alpha: 1, color: COLORS[Math.floor(Math.random() * COLORS.length)], size: 1.5 + Math.random() * 2.5, decay: 0.012 + Math.random() * 0.010, trail: [] });
+        }
+        bursts.push(burst);
+      });
+      function frame() {
+        requestAnimationFrame(frame);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let b = bursts.length - 1; b >= 0; b--) {
+          const burst = bursts[b];
+          for (let i = burst.length - 1; i >= 0; i--) {
+            const p = burst[i];
+            p.trail.push({ x: p.x, y: p.y, alpha: p.alpha });
+            if (p.trail.length > 6) p.trail.shift();
+            p.x += p.vx; p.y += p.vy; p.vy += 0.14; p.vx *= 0.97; p.vy *= 0.97; p.alpha -= p.decay;
+            if (p.alpha <= 0) { burst.splice(i, 1); continue; }
+            p.trail.forEach((tp, ti) => { ctx.beginPath(); ctx.arc(tp.x, tp.y, p.size * 0.5, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = tp.alpha * (ti / p.trail.length) * 0.35; ctx.fill(); });
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fill();
+          }
+          if (burst.length === 0) bursts.splice(b, 1);
+        }
+        ctx.globalAlpha = 1;
+      }
+      frame();
+    })();
+  </script>
+</body>
+</html>

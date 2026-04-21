@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revival</title>
+
+  <!-- Three.js & GSAP — local copies for reliable offline/file:// use -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    /* ─── Reset & Base ──────────────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* ─── Theme ─────────────────────────────────────────────────────────────
+       DARK THEME (active). To revert to light, swap the two :root blocks below.
+       ─────────────────────────────────────────────────────────────────────── */
+
+    /* ── LIGHT THEME (inactive — uncomment to revert) ──
+    :root {
+      --bg:        #f5f4f0;
+      --fg:        #1d1d1f;
+      --muted:     #86868b;
+      --accent:    #0055d4;
+      --accent2:   #8a3fbe;
+      --card:      #eaeae5;
+      --border:    rgba(0,0,0,0.09);
+      --font:      "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    ── END LIGHT THEME ── */
+
+    /* ── DARK THEME (active) ── */
+    :root {
+      --bg:        #0d1b2e;
+      --fg:        #f0f2f5;
+      --muted:     #7a8fa8;
+      --accent:    #4d9fff;
+      --accent2:   #bf5af2;
+      --card:      #122040;
+      --border:    rgba(255,255,255,0.07);
+      --font:      "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 58px 58px;
+      color: var(--fg);
+      font-family: var(--font);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── Custom cursor ─────────────────────────────────────────────────── */
+    #cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--fg);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.08s, width 0.2s, height 0.2s, background 0.2s;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease-out, width 0.25s, height 0.25s, border-color 0.2s;
+    }
+    body:has(a:hover) #cursor,
+    body:has(button:hover) #cursor { width: 16px; height: 16px; background: var(--accent); }
+    body:has(a:hover) #cursor-ring,
+    body:has(button:hover) #cursor-ring { width: 52px; height: 52px; border-color: var(--accent); }
+
+    /* ─── Scroll bar ────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #1e3a5f; border-radius: 2px; }
+
+    /* ─── Nav ───────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 44px;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(13,27,46,0.88);
+      border-bottom: 1px solid var(--border);
+      transition: padding 0.3s;
+    }
+    .nav-logo {
+      font-size: 17px; font-weight: 600; letter-spacing: -0.3px;
+      color: var(--fg);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      font-size: 13px; font-weight: 400; color: var(--muted);
+      text-decoration: none; letter-spacing: 0.2px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--fg); }
+
+    /* ─── Sections ──────────────────────────────────────────────────────── */
+    section { position: relative; }
+
+    /* ─── Hero ──────────────────────────────────────────────────────────── */
+    #hero {
+      height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    #hero-canvas {
+      position: absolute; inset: 0;
+      z-index: 0;
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; gap: 24px;
+    }
+    .hero-eyebrow {
+      font-size: 12px; font-weight: 500; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--accent);
+      opacity: 0;
+    }
+    .hero-title {
+      font-size: clamp(52px, 8vw, 112px);
+      font-weight: 700; letter-spacing: -3px; line-height: 2;
+      background: linear-gradient(160deg, #ffffff 30%, #90b4d0 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0;
+    }
+    .hero-sub {
+      font-size: clamp(17px, 2vw, 21px);
+      font-weight: 300; color: var(--muted); max-width: 560px;
+      line-height: 1.55; opacity: 0;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 8px;
+      padding: 14px 32px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 980px;
+      font-size: 15px; font-weight: 500; letter-spacing: -0.2px;
+      cursor: pointer; text-decoration: none;
+      transition: filter 0.2s, transform 0.15s;
+      opacity: 0;
+    }
+    .hero-cta:hover { filter: brightness(1.15); transform: scale(1.04); }
+    .hero-cta svg { transition: transform 0.2s; }
+    .hero-cta:hover svg { transform: translateX(4px); }
+
+    .scroll-hint {
+      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      opacity: 0; z-index: 2;
+    }
+    .scroll-hint span { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); }
+    .scroll-line {
+      width: 1px; height: 48px;
+      background: linear-gradient(to bottom, var(--muted), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    /* ─── 3D Book Section ───────────────────────────────────────────────── */
+    #book-section {
+      height: 300vh;
+      position: relative;
+    }
+    #book-sticky {
+      position: sticky; top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #book-canvas { position: absolute; inset: 0; z-index: 0; }
+
+    /* Meta panel — bottom-left, like Active Theory's project metadata */
+    .book-meta {
+      position: absolute; bottom: 52px; left: 48px; z-index: 2;
+      display: flex; flex-direction: column; gap: 6px;
+      pointer-events: none;
+    }
+    .book-label {
+      font-size: 10px; letter-spacing: 3.5px; text-transform: uppercase;
+      color: var(--accent2); font-weight: 500;
+    }
+    .book-headline {
+      font-size: clamp(18px, 1.8vw, 24px);
+      font-weight: 600; letter-spacing: -0.4px; line-height: 1.2;
+    }
+    .book-body {
+      font-size: 12px; font-weight: 300; color: var(--muted);
+      line-height: 1.65; max-width: 300px;
+    }
+
+    /* Counter top-right */
+    .book-counter {
+      position: absolute; top: 36px; right: 48px; z-index: 2;
+      font-size: 11px; letter-spacing: 2px; color: var(--muted);
+      pointer-events: none;
+    }
+    .book-counter span { color: var(--fg); font-weight: 500; }
+
+    /* ─── Orbit Section ─────────────────────────────────────────────────── */
+    #orbit-section {
+      height: 100vh;
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    #orbit-canvas { position: absolute; inset: 0; z-index: 0; }
+    .orbit-header {
+      position: relative; z-index: 2;
+      text-align: center; margin-bottom: 0;
+      pointer-events: none;
+    }
+    .orbit-eyebrow {
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent); font-weight: 500; margin-bottom: 12px;
+    }
+    .orbit-title {
+      font-size: clamp(42px, 5.5vw, 80px);
+      font-weight: 700; letter-spacing: -2.5px; line-height: 1;
+      background: linear-gradient(135deg, #ffffff 0%, #90b4d0 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ─── Metrics Section ───────────────────────────────────────────────── */
+    #metrics {
+      padding: 120px 44px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2px;
+      background: var(--border);
+    }
+    .metric-card {
+      background: var(--bg);
+      padding: 64px 48px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .metric-number {
+      font-size: clamp(52px, 6vw, 80px);
+      font-weight: 700; letter-spacing: -3px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .metric-label {
+      font-size: 15px; font-weight: 400; color: var(--muted);
+    }
+
+    /* ─── Principles Section ────────────────────────────────────────────── */
+    #principles {
+      padding: 160px 44px;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .principles-header {
+      text-align: center; margin-bottom: 96px;
+    }
+    .section-eyebrow {
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted); font-weight: 500; margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(40px, 5vw, 68px);
+      font-weight: 700; letter-spacing: -2px; line-height: 1.05;
+    }
+    .principle-list { display: flex; flex-direction: column; }
+    .principle-item {
+      display: grid; grid-template-columns: 56px 1fr 1fr;
+      align-items: start; gap: 48px;
+      padding: 40px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Animated sweep line replaces static border */
+    .principle-item .p-line {
+      position: absolute; bottom: 0; left: 0;
+      height: 1px; width: 100%;
+      background: var(--border);
+      transform: scaleX(0); transform-origin: left;
+    }
+    .principle-num {
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      letter-spacing: 1px; padding-top: 4px;
+      opacity: 0;
+    }
+    .principle-name {
+      font-size: clamp(22px, 2.5vw, 32px);
+      font-weight: 600; letter-spacing: -0.8px;
+      opacity: 0; transform: translateY(28px);
+    }
+    .principle-desc {
+      font-size: 15px; font-weight: 300; color: var(--muted); line-height: 1.7;
+      opacity: 0;
+    }
+
+    /* ─── Contact Form ──────────────────────────────────────────────────── */
+    #contact {
+      padding: 160px 44px;
+      max-width: 760px; margin: 0 auto;
+    }
+    .contact-header {
+      margin-bottom: 72px;
+    }
+    .contact-header .section-eyebrow { color: var(--accent); }
+    .contact-form {
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px;
+    }
+    .form-field {
+      display: flex; flex-direction: column;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .form-field label {
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted); font-weight: 500; margin-bottom: 12px;
+    }
+    .form-field input,
+    .form-field select {
+      background: transparent;
+      border: none; outline: none;
+      color: var(--fg);
+      font-family: var(--font);
+      font-size: 17px; font-weight: 300;
+      padding: 0;
+      -webkit-appearance: none;
+      cursor: text;
+    }
+    .form-field select { cursor: pointer; }
+    .form-field input::placeholder { color: var(--muted); }
+    /* Animated focus underline */
+    .form-field::after {
+      content: ''; position: absolute; bottom: -1px; left: 0;
+      height: 1px; width: 0;
+      background: var(--accent);
+      transition: width 0.35s ease;
+    }
+    .form-field:focus-within::after { width: 100%; }
+    .form-field select option {
+      background: #0d1b2e; color: var(--fg);
+    }
+    /* Select arrow */
+    .form-field.select-field::before {
+      content: '';
+      position: absolute; right: 0; bottom: 28px;
+      width: 8px; height: 8px;
+      border-right: 1.5px solid var(--muted);
+      border-bottom: 1.5px solid var(--muted);
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+    .form-submit {
+      margin-top: 56px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    .submit-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 36px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 980px;
+      font-family: var(--font);
+      font-size: 15px; font-weight: 500;
+      cursor: pointer;
+      transition: filter 0.2s, transform 0.15s;
+    }
+    .submit-btn:hover { filter: brightness(1.15); transform: scale(1.04); }
+    .form-note {
+      font-size: 12px; color: var(--muted); line-height: 1.5;
+    }
+
+    /* ─── About Section ────────────────────────────────────────────────── */
+    #about-section {
+      padding: 160px 44px;
+      border-top: 1px solid var(--border);
+    }
+    .about-inner { max-width: 1100px; margin: 0 auto; }
+    .author-list { display: flex; flex-direction: column; gap: 2px; }
+    .author-card-main {
+      display: grid; grid-template-columns: 180px 1fr;
+      gap: 56px; padding: 64px 0;
+      border-top: 1px solid var(--border); align-items: start;
+    }
+    .author-card-main:last-child { border-bottom: 1px solid var(--border); }
+    .author-photo-box {
+      width: 180px; height: 180px; border-radius: 14px;
+      background: var(--card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .author-photo-box img { width: 100%; height: 100%; object-fit: cover; }
+    .author-initials {
+      font-size: 48px; font-weight: 700; letter-spacing: -2px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .author-info { display: flex; flex-direction: column; gap: 14px; }
+    .author-role-tag {
+      font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--accent); font-weight: 500;
+    }
+    .author-name-text {
+      font-size: clamp(24px, 2.8vw, 36px);
+      font-weight: 700; letter-spacing: -0.8px;
+    }
+    .author-bio-text {
+      font-size: 15px; font-weight: 300; color: var(--muted);
+      line-height: 1.75; max-width: 520px;
+    }
+    .author-book-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+    .author-book-tag {
+      font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--accent2); font-weight: 500;
+      padding: 6px 14px; border: 1px solid rgba(191,90,242,0.25);
+      border-radius: 980px;
+    }
+
+    /* ─── Footer ────────────────────────────────────────────────────────── */
+    footer {
+      padding: 80px 44px 60px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      border-top: 1px solid var(--border);
+    }
+    .footer-wordmark {
+      font-size: 56px; font-weight: 700; letter-spacing: -3px;
+      color: rgba(255,255,255,0.05); user-select: none; line-height: 1;
+    }
+    .footer-right {
+      text-align: right; display: flex; flex-direction: column; gap: 8px;
+    }
+    .footer-right span { font-size: 13px; color: var(--muted); }
+
+    /* ─── Mobile ────────────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+
+      /* Nav — hide link list, keep logo */
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+
+      /* Hero */
+      .hero-title { line-height: 1.1; letter-spacing: -1.5px; }
+      .hero-sub   { font-size: 15px; padding: 0 8px; }
+
+      /* Book section — pull meta & counter away from edges */
+      .book-meta    { left: 20px; right: 20px; bottom: 28px; }
+      .book-counter { right: 20px; top: 24px; }
+      .book-body    { max-width: 100%; font-size: 11px; }
+
+      /* Orbit */
+      .orbit-title { letter-spacing: -1px; }
+
+      /* Metrics */
+      .metric-card { padding: 40px 24px; }
+
+      /* Principles — collapse 3-col to 2-col: [num | name] then desc full-width */
+      #principles { padding: 100px 20px; }
+      .principles-header { margin-bottom: 56px; }
+      .principle-item {
+        grid-template-columns: 40px 1fr;
+        gap: 12px 16px;
+        padding: 32px 0;
+      }
+      .principle-num  { grid-column: 1; grid-row: 1; }
+      .principle-name { grid-column: 2; grid-row: 1; font-size: 20px; }
+      .principle-desc { grid-column: 1 / -1; grid-row: 2; }
+      .p-line         { grid-column: 1 / -1; }
+
+      /* Contact */
+      #contact { padding: 100px 20px; }
+      .contact-header { margin-bottom: 48px; }
+      .form-row { grid-template-columns: 1fr; }
+      .form-submit { flex-direction: column; align-items: flex-start; gap: 16px; }
+
+      /* About section */
+      #about-section { padding: 100px 20px; }
+      .author-card-main {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 48px 0;
+      }
+      .author-photo-box { width: 100px; height: 100px; }
+      .author-initials  { font-size: 32px; }
+
+      /* Footer */
+      footer {
+        padding: 48px 20px 36px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .footer-wordmark { font-size: 40px; }
+      .footer-right    { text-align: left; }
+    }
+
+    /* ─── Noise overlay ─────────────────────────────────────────────────── */
+    .noise {
+      position: fixed; inset: 0; z-index: 1000;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Noise grain -->
+  <div class="noise"></div>
+
+  <!-- Custom cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- ── Nav ─────────────────────────────────────────────────────────────── -->
+  <nav>
+    <a class="nav-logo" href="about.html"><span>Blessed </span>International Ministries</a>
+    <ul class="nav-links">
+      <li><a href="#book-section">Books</a></li>
+      <li><a href="#orbit-section">Foundation</a></li>
+      <li><a href="#principles">Declarations</a></li>
+      <li><a href="#about-section">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero ────────────────────────────────────────────────────────────── -->
+  <section id="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Equipping Leaders for Awakening</p>
+      <h1 class="hero-title">Revival Training Ground</h1>
+      <p class="hero-sub">
+        Teachings on revival, fear of God, and living a supernatural life.
+      </p>
+      <a class="hero-cta" href="#book-section">
+        Explore
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M1 7h12M7.5 1.5L13 7l-5.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── 3D Book Scroll Section ───────────────────────────────────────────── -->
+  <section id="book-section">
+    <div id="book-sticky">
+      <canvas id="book-canvas"></canvas>
+      <!-- Bottom-left metadata panel, like Active Theory's project meta -->
+      <div class="book-meta">
+        <p class="book-label">RYAN C. LEE</p>
+        <h2 class="book-headline" id="book-headline">Clean Code</h2>
+        <p class="book-body" id="book-body">Names reveal intent. Functions do one thing. Tests are first-class. Every principle applied to every line we ship.</p>
+      </div>
+      <!-- Top-right counter -->
+      <div class="book-counter"><span id="book-idx">01</span> / 03</div>
+    </div>
+  </section>
+
+  <!-- ── 3D Orbit / Foundation Section ───────────────────────────────────── -->
+  <section id="orbit-section">
+    <canvas id="orbit-canvas"></canvas>
+    <div class="orbit-header" id="orbit-header">
+      <p class="orbit-eyebrow">Visit our church website to learn more</p>
+      <h2 class="orbit-title">Our Foundation</h2>
+    </div>
+  </section>
+
+  <!-- ── Metrics ──────────────────────────────────────────────────────────── -->
+  <section id="metrics">
+    <div class="metric-card">
+      <div class="metric-number" data-target="100.00">0</div>
+      <p class="metric-label">Submitted to the Word (%)</p>
+    </div>
+    <div class="metric-card">
+      <div class="metric-number" data-target="200">0</div>
+      <p class="metric-label">Churches across the Globe</p>
+    </div>
+    <div class="metric-card">
+      <div class="metric-number" data-target="7">0</div>
+      <p class="metric-label">Nations</p>
+    </div>
+    <div class="metric-card">
+      <div class="metric-number" data-target="22">0</div>
+      <p class="metric-label">Years in Ministry</p>
+    </div>
+  </section>
+
+  <!-- ── Principles ───────────────────────────────────────────────────────── -->
+  <section id="principles">
+    <div class="principles-header">
+      <p class="section-eyebrow">SPEAK IT OUT</p>
+      <h2 class="section-title">Declarations of Faith & Truth</h2>
+    </div>
+    <div class="principle-list">
+      <div class="principle-item">
+        <span class="principle-num">01</span>
+        <span class="principle-name">Dependency Rule</span>
+        <p class="principle-desc">Source code dependencies point only inward — toward policy, never toward details. The database, the web layer, and third-party frameworks are all plugins.</p>
+        <span class="p-line"></span>
+      </div>
+      <div class="principle-item">
+        <span class="principle-num">02</span>
+        <span class="principle-name">Single Responsibility</span>
+        <p class="principle-desc">A component has one reason to change. If you can name two stakeholders who would each want it changed for different reasons, split it.</p>
+        <span class="p-line"></span>
+      </div>
+      <div class="principle-item">
+        <span class="principle-num">03</span>
+        <span class="principle-name">Names Reveal Intent</span>
+        <p class="principle-desc">If you need a comment to explain a name, rename it. Classes are nouns. Methods are verbs. One word per concept, consistently across the codebase.</p>
+        <span class="p-line"></span>
+      </div>
+      <div class="principle-item">
+        <span class="principle-num">04</span>
+        <span class="principle-name">Measure Tail Latency</span>
+        <p class="principle-desc">p99 and p999, not averages. Describe load before describing performance. The edge cases you ignore are the ones that page on-call at 3 AM.</p>
+        <span class="p-line"></span>
+      </div>
+      <div class="principle-item">
+        <span class="principle-num">05</span>
+        <span class="principle-name">Idempotent by Design</span>
+        <p class="principle-desc">Build exactly-once semantics into the application, not the transport. Operations that can be retried safely are operations that survive real-world failure.</p>
+        <span class="p-line"></span>
+      </div>
+      <div class="principle-item">
+        <span class="principle-num">06</span>
+        <span class="principle-name">Tests Are First-Class</span>
+        <p class="principle-desc">Clean, readable, fast, independent, self-validating. Write the test before or alongside the code. A test that is hard to write is a smell about the design.</p>
+        <span class="p-line"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── About the Authors ─────────────────────────────────────────────────── -->
+  <section id="about-section">
+    <div class="about-inner">
+      <p class="section-eyebrow">The People Behind the Mission</p>
+      <h2 class="section-title" style="margin-bottom:80px;">About the Authors</h2>
+
+      <div class="author-list">
+
+        <div class="author-card-main">
+          <div class="author-photo-box">
+            <!-- Drop in: <img src="authors/author1.jpg" alt="Author Name"> -->
+            <span class="author-initials">A1</span>
+          </div>
+          <div class="author-info">
+            <p class="author-role-tag">Lead Author</p>
+            <h3 class="author-name-text">Author Name</h3>
+            <p class="author-bio-text">
+              A brief biography about this author goes here — their calling,
+              ministry background, and what drives their writing.
+            </p>
+            <div class="author-book-tags">
+              <span class="author-book-tag">Daily Supernatural</span>
+              <span class="author-book-tag">Activation Guide</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="author-card-main">
+          <div class="author-photo-box">
+            <!-- Drop in: <img src="authors/author2.jpg" alt="Author Name"> -->
+            <span class="author-initials">A2</span>
+          </div>
+          <div class="author-info">
+            <p class="author-role-tag">Contributing Author</p>
+            <h3 class="author-name-text">Author Name</h3>
+            <p class="author-bio-text">
+              A brief biography about this author goes here — their calling,
+              ministry background, and what drives their writing.
+            </p>
+            <div class="author-book-tags">
+              <span class="author-book-tag">Guarding the Fire</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Contact Form ─────────────────────────────────────────────────────── -->
+  <section id="contact">
+    <div class="contact-header">
+      <p class="section-eyebrow">Get updates on future books</p>
+      <h2 class="section-title">Stay Connected</h2>
+    </div>
+    <form class="contact-form" id="contact-form">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="cf-name">Name</label>
+          <input id="cf-name" type="text" placeholder="Your full name" autocomplete="off" />
+        </div>
+        <div class="form-field">
+          <label for="cf-email">Email</label>
+          <input id="cf-email" type="email" placeholder="you@gmail.com" autocomplete="off" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field select-field">
+          <label for="cf-age">Age Range</label>
+          <select id="cf-age">
+            <option value="" disabled selected>Select range</option>
+            <option>Under 25</option>
+            <option>25 – 34</option>
+            <option>35 – 44</option>
+            <option>45 – 54</option>
+            <option>55+</option>
+          </select>
+        </div>
+        <div class="form-field select-field">
+          <label for="cf-heard">How did you hear about us?</label>
+          <select id="cf-heard">
+            <option value="" disabled selected>Select source</option>
+            <option>Word of mouth</option>
+            <option>Blog</option>
+            <option>Google search</option>
+            <option>Social media</option>
+            <option>Podcast</option>
+            <option>Online Ad</option>
+            <option>Blessed church event</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-submit">
+        <button class="submit-btn" type="submit" id="submit-btn">
+          Send
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M1 7h12M7.5 1.5L13 7l-5.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <p class="form-note" id="form-status"></p>
+      </div>
+    </form>
+  </section>
+
+  <!-- ── Footer ───────────────────────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-wordmark">CA</div>
+    <div class="footer-right">
+      <span>Blessed International Ministries</span>
+      <span>© 2026</span>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       JavaScript
+  ════════════════════════════════════════════════════════════════════════ -->
+  <script>
+
+  // ── Cursor ─────────────────────────────────────────────────────────────────
+  const cursor     = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function animCursor() {
+    rx += (mx - rx) * 0.15;
+    ry += (my - ry) * 0.15;
+    if (cursor)     { cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; }
+    if (cursorRing) { cursorRing.style.left = rx + 'px'; cursorRing.style.top = ry + 'px'; }
+    requestAnimationFrame(animCursor);
+  })();
+
+  // ── GSAP scroll plugin ─────────────────────────────────────────────────────
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ── Hero entrance animations ───────────────────────────────────────────────
+  gsap.set(['.hero-eyebrow', '.hero-title', '.hero-sub', '.hero-cta'], { y: 40 });
+
+  const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  heroTl
+    .to('.hero-eyebrow', { opacity: 1, y: 0, duration: 0.9, delay: 0.3 })
+    .to('.hero-title',   { opacity: 1, y: 0, duration: 1.1 }, '-=0.6')
+    .to('.hero-sub',     { opacity: 1, y: 0, duration: 0.9 }, '-=0.7')
+    .to('.hero-cta',     { opacity: 1, y: 0, duration: 0.7 }, '-=0.6')
+    .to('.scroll-hint',  { opacity: 1, duration: 0.6 },       '-=0.3');
+
+  // ── Hero canvas — floating particles ──────────────────────────────────────
+  (function heroParticles() {
+    const canvas  = document.getElementById('hero-canvas');
+    const ctx     = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    class Particle {
+      constructor() { this.reset(true); }
+      reset(init) {
+        this.x  = Math.random() * W;
+        this.y  = init ? Math.random() * H : H + 10;
+        this.r  = Math.random() * 1.4 + 0.3;
+        this.vy = -(Math.random() * 0.4 + 0.1);
+        this.vx = (Math.random() - 0.5) * 0.12;
+        this.alpha = Math.random() * 0.5 + 0.1;
+      }
+      update() {
+        this.x += this.vx; this.y += this.vy;
+        if (this.y < -10) this.reset(false);
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200,220,255,${this.alpha * 0.22})`;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 140; i++) particles.push(new Particle());
+
+    function loop() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(loop);
+    }
+    loop();
+  })();
+
+  // ════════════════════════════════════════════════════════════════════════════
+  //  3-D BOOK COVERFLOW  (Three.js)
+  //
+  //  Mechanics taken directly from the Active Theory work carousel:
+  //  — Books sit on a perfectly UPRIGHT circle (no tilt at all)
+  //  — Camera is close with a TIGHT FOV (~36°), so perspective projection
+  //    alone compresses the side books into near-edge-on slivers
+  //  — Three books always visible: center face-on, left & right as thin wedges
+  //  — Scroll rotates the carousel via GSAP scrub + secondary lerp
+  //  — Each book face has a canvas texture (gradient + title)
+  // ════════════════════════════════════════════════════════════════════════════
+  (function bookScene() {
+    const canvas   = document.getElementById('book-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+
+    // Wider FOV + farther camera = books less zoomed-in, more of carousel visible
+    const camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 13);
+    camera.lookAt(0, 0, 0);
+
+    // ── Lighting ───────────────────────────────────────────────────────────
+    scene.add(new THREE.AmbientLight(0xffffff, 0.12));
+    const key = new THREE.DirectionalLight(0xffffff, 2.8);
+    key.position.set(0, 4, 9); scene.add(key);
+    const fill = new THREE.DirectionalLight(0x2060ff, 1.0);
+    fill.position.set(-7, 1, 3); scene.add(fill);
+    const rim = new THREE.DirectionalLight(0xbf5af2, 0.7);
+    rim.position.set(7, -2, -4); scene.add(rim);
+
+    // ── Book data ──────────────────────────────────────────────────────────
+    const BOOKS = [
+      {
+        title: 'Daily\nSupernatural',        author: 'Ryan C. Lee',
+        tags:  ['Naming', 'Functions', 'TDD', 'SOLID'],
+        grad:  ['#0a1a40', '#1a3a8a'], accent: '#2997ff', accentHex: 0x2997ff,
+        spine: 0x071128,
+        imageSrc: 'book-covers/clean-code.jpg',
+        url: '',   // ← paste book link here
+      },
+      {
+        title: 'Daily\nSupernatural\n-\nCompanion\nActivation\nGuide', author: 'Ryan C. Lee',
+        tags:  ['Boundaries', 'Layers', 'Dependency Rule', 'Components'],
+        grad:  ['#18002e', '#3a0066'], accent: '#bf5af2', accentHex: 0xbf5af2,
+        spine: 0x0e001c,
+        imageSrc: 'book-covers/clean-architecture.jpg',
+        url: '',   // ← paste book link here
+      },
+      {
+        title: 'Guarding\nthe\nFire', author: 'Ryan C. Lee',
+        tags:  ['Replication', 'Partitioning', 'Consensus', 'Streams'],
+        grad:  ['#001520', '#003344'], accent: '#30d158', accentHex: 0x30d158,
+        spine: 0x000d14,
+        imageSrc: 'book-covers/ddia.jpg',
+        url: '',   // ← paste book link here
+      },
+    ];
+
+    const N = BOOKS.length;
+    const R = 5.2;   // carousel radius — larger = side cards start further back
+
+    // ── Canvas texture per book face ───────────────────────────────────────
+    function makeBookTexture(b) {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 720;
+      const ctx = c.getContext('2d');
+
+      // Gradient bg
+      const grd = ctx.createLinearGradient(0, 0, 512, 720);
+      grd.addColorStop(0, b.grad[0]);
+      grd.addColorStop(1, b.grad[1]);
+      ctx.fillStyle = grd; ctx.fillRect(0, 0, 512, 720);
+
+      // Fine noise
+      for (let i = 0; i < 4000; i++) {
+        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.035})`;
+        ctx.fillRect(Math.random() * 512, Math.random() * 720, 1, 1);
+      }
+
+      // Subtle horizontal rule near top
+      ctx.strokeStyle = `rgba(255,255,255,0.06)`;
+      ctx.lineWidth = 1; ctx.beginPath();
+      ctx.moveTo(48, 160); ctx.lineTo(464, 160); ctx.stroke();
+
+      // Accent left stripe
+      ctx.fillStyle = b.accent; ctx.globalAlpha = 0.85;
+      ctx.fillRect(48, 190, 3, 280);
+      ctx.globalAlpha = 1;
+
+      // Author
+      ctx.font = '400 18px Helvetica, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.42)';
+      ctx.textAlign = 'left';
+      ctx.fillText(b.author.toUpperCase(), 64, 218);
+
+      // Title — handle embedded newlines
+      ctx.font = 'bold 78px Helvetica, sans-serif';
+      ctx.fillStyle = '#ffffff';
+      const lines = b.title.split('\n');
+      const lineH = 84;
+      const startY = lines.length > 2 ? 275 : 295;
+      lines.forEach((ln, i) => ctx.fillText(ln, 64, startY + i * lineH));
+
+      // Tags
+      ctx.font = '400 17px Helvetica, sans-serif';
+      ctx.fillStyle = b.accent;
+      b.tags.forEach((tag, i) => ctx.fillText(`— ${tag}`, 64, 585 + i * 26));
+
+      // Subtle bottom rule
+      ctx.strokeStyle = `rgba(255,255,255,0.05)`;
+      ctx.lineWidth = 1; ctx.beginPath();
+      ctx.moveTo(48, 688); ctx.lineTo(464, 688); ctx.stroke();
+
+      return new THREE.CanvasTexture(c);
+    }
+
+    // ── Rounded-rect shape helper ──────────────────────────────────────────
+    function roundedRect(w, h, r) {
+      const s = new THREE.Shape();
+      s.moveTo(-w/2+r, -h/2);
+      s.lineTo(w/2-r, -h/2);  s.quadraticCurveTo(w/2, -h/2, w/2, -h/2+r);
+      s.lineTo(w/2, h/2-r);   s.quadraticCurveTo(w/2, h/2, w/2-r, h/2);
+      s.lineTo(-w/2+r, h/2);  s.quadraticCurveTo(-w/2, h/2, -w/2, h/2-r);
+      s.lineTo(-w/2, -h/2+r); s.quadraticCurveTo(-w/2, -h/2, -w/2+r, -h/2);
+      return s;
+    }
+
+    // ── Upright carousel — NO rotation.x, NO rotation.z ───────────────────
+    const carousel = new THREE.Group();
+    scene.add(carousel);
+
+    const BW = 2.4, BH = 3.3;   // book face width/height
+
+    const bookMeshes = BOOKS.map((b, idx) => {
+      const g = new THREE.Group();
+
+      // Front cover face (extruded rounded rect with canvas texture)
+      const faceGeo = new THREE.ExtrudeGeometry(roundedRect(BW, BH, 0.10), {
+        depth: 0.05, bevelEnabled: false,
+      });
+      const faceMat = new THREE.MeshPhysicalMaterial({
+        map: makeBookTexture(b),
+        metalness: 0.18, roughness: 0.28,
+        clearcoat: 1.0, clearcoatRoughness: 0.07,
+      });
+      const face = new THREE.Mesh(faceGeo, faceMat);
+      face.position.z = 0.14;
+      g.add(face);
+
+      // Load real book cover image if available; silently fall back to canvas texture.
+      // ExtrudeGeometry UVs are in shape-coordinate space, not 0-1, so a photo
+      // applied to faceMat distorts. Instead, place a PlaneGeometry overlay (which
+      // has correct 0-1 UVs) in front of the extrusion when the image loads.
+      if (b.imageSrc) {
+        new THREE.TextureLoader().load(
+          b.imageSrc,
+          (tex) => {
+            const imgMesh = new THREE.Mesh(
+              new THREE.PlaneGeometry(BW, BH),
+              new THREE.MeshBasicMaterial({ map: tex })
+            );
+            imgMesh.position.z = face.position.z + 0.06; // just in front of extrusion
+            g.add(imgMesh);
+            faceMat.visible = false; // hide canvas cover beneath
+          },
+          undefined,
+          () => { /* image missing — canvas texture remains */ }
+        );
+      }
+
+      // Page block
+      const pages = new THREE.Mesh(
+        new THREE.BoxGeometry(BW * 0.90, BH * 0.965, 0.30),
+        new THREE.MeshStandardMaterial({ color: 0xf0e8d8, roughness: 0.95 })
+      );
+      pages.position.set(0.05, 0, 0);
+      g.add(pages);
+
+      // Spine
+      const spineMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.18, BH, 0.48),
+        new THREE.MeshPhysicalMaterial({ color: b.spine, metalness: 0.45, roughness: 0.2 })
+      );
+      spineMesh.position.set(-BW / 2 - 0.02, 0, 0.02);
+      g.add(spineMesh);
+
+      // Accent stripe (emissive glow along spine edge)
+      const stripeMat = new THREE.MeshStandardMaterial({
+        color: b.accentHex, emissive: b.accentHex, emissiveIntensity: 0.3,
+        transparent: true, opacity: 0.9,
+      });
+      const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.045, BH * 0.86, 0.012), stripeMat);
+      stripe.position.set(-BW / 2 + 0.06, 0, 0.24);
+      g.add(stripe);
+
+      // Glow halo behind face (color-coded, pulsed per-frame)
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: b.accentHex, transparent: true, opacity: 0,
+        side: THREE.DoubleSide, depthWrite: false,
+      });
+      const halo = new THREE.Mesh(new THREE.CircleGeometry(2.2, 80), haloMat);
+      halo.position.z = -0.5;
+      g.add(halo);
+
+      // Position on upright circle: angle 0 → book faces +Z → faces camera
+      const angle = (idx / N) * Math.PI * 2;
+      g.position.x = Math.sin(angle) * R;
+      g.position.z = Math.cos(angle) * R;
+      g.rotation.y = angle;
+
+      g.userData = { angle, faceMat, stripeMat, haloMat };
+      carousel.add(g);
+      return g;
+    });
+
+    // ── Scroll drives carousel rotation ───────────────────────────────────
+    let targetY = 0, currentY = 0;
+    ScrollTrigger.create({
+      trigger: '#book-section',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 2.4,
+      onUpdate: self => {
+        targetY = -self.progress * (Math.PI * 2 * (N - 1) / N);
+      }
+    });
+
+    // ── Text / counter DOM refs ────────────────────────────────────────────
+    const bookTexts = [
+      { headline: `Daily Supernatural`,
+        body: `Daily Supernatural is a powerful invitation into a lifestyle of encountering God in the everyday. Through real stories, reflection, and spiritual insight, this book challenges readers to pursue authentic, lasting transformation through a life marked by God's presence.` },
+      { headline: `Daily Supernatural — Companion Activation Guide`,
+        body: `The Daily Supernatural Activation Guide is a hands-on companion designed to move you from inspiration into real encounter. Through practical exercises, guided reflections, and intentional challenges, it equips you to not just read about the supernatural, but to actively live it.` },
+      { headline: `Guarding the Fire (Coming Soon)`,
+        body: `Revival movements often begin with genuine encounters with God but collapse when the fear of the Lord — true reverence, awe, and dependence on Him — is lost. This book reveals the hidden pattern behind revival history and shows how to sustain authentic, lasting spiritual awakening.` },
+    ];
+    const headline = document.getElementById('book-headline');
+    const bodyEl   = document.getElementById('book-body');
+    const idxEl    = document.getElementById('book-idx');
+    let lastFront  = -1;
+
+    // ── Render loop ────────────────────────────────────────────────────────
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+
+      // Extra lerp on top of GSAP scrub — removes micro-jitter
+      currentY += (targetY - currentY) * 0.052;
+
+      // Very subtle idle drift so the scene breathes when not scrolling
+      carousel.rotation.y = currentY + Math.sin(t * 0.20) * 0.010;
+
+      // Per-book visual treatments
+      let frontIdx = 0, minDist = Infinity;
+      bookMeshes.forEach((bm, i) => {
+        const effAngle = bm.userData.angle + currentY;
+        const norm = ((effAngle % (Math.PI * 2)) + Math.PI * 3) % (Math.PI * 2) - Math.PI;
+        const dist = Math.abs(norm);
+        if (dist < minDist) { minDist = dist; frontIdx = i; }
+
+        // Proximity score: 1 = dead front, 0 = dead back
+        const prox = Math.max(0, 1 - dist / (Math.PI * 0.85));
+
+        // Halo glow — only visible when near front
+        bm.userData.haloMat.opacity = prox * (0.10 + Math.sin(t * 1.8 + i) * 0.025);
+
+        // Emissive stripe intensity
+        bm.userData.stripeMat.emissiveIntensity = 0.1 + prox * 1.1;
+
+        // Subtle vertical float for the front book
+        bm.position.y = prox > 0.5 ? Math.sin(t * 0.45) * 0.045 * prox : 0;
+      });
+
+      // Update text + counter on front-book change
+      if (frontIdx !== lastFront) {
+        lastFront = frontIdx;
+        gsap.fromTo(headline, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out' });
+        gsap.fromTo(bodyEl,   { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.65, delay: 0.1, ease: 'power3.out' });
+        headline.textContent = bookTexts[frontIdx].headline;
+        bodyEl.textContent   = bookTexts[frontIdx].body;
+        idxEl.textContent    = String(frontIdx + 1).padStart(2, '0');
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // ── Book click → open URL ─────────────────────────────────────────────
+    const raycaster = new THREE.Raycaster();
+    const mouse     = new THREE.Vector2();
+    const bookSection = document.getElementById('book-sticky');
+    bookSection.addEventListener('click', e => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x =  ((e.clientX - rect.left)  / rect.width)  * 2 - 1;
+      mouse.y = -((e.clientY - rect.top)   / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(carousel.children, true);
+      if (hits.length) {
+        let obj = hits[0].object;
+        while (obj.parent && obj.parent !== carousel) obj = obj.parent;
+        const idx = carousel.children.indexOf(obj);
+        if (idx >= 0 && BOOKS[idx] && BOOKS[idx].url) {
+          window.open(BOOKS[idx].url, '_blank');
+        }
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  })();
+
+  // ════════════════════════════════════════════════════════════════════════════
+  //  3-D ORBIT CAROUSEL  (Three.js)
+  // ════════════════════════════════════════════════════════════════════════════
+  (function orbitScene() {
+    const canvas   = document.getElementById('orbit-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 200);
+    camera.position.set(0, 0, 18);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const kl = new THREE.DirectionalLight(0x2997ff, 1.5); kl.position.set(5, 8, 5); scene.add(kl);
+    const kl2 = new THREE.DirectionalLight(0xbf5af2, 0.8); kl2.position.set(-5, -3, 5); scene.add(kl2);
+
+    // Items in the orbit
+    const items = [
+      { label: 'Jesus Christ',          color: 0x2997ff },
+      { label: 'His Word',          color: 0x2997ff },
+      { label: 'Holy Spirit',  color: 0xbf5af2 },
+      { label: 'Supernatural life',  color: 0xbf5af2 },
+      { label: 'Worship',                color: 0x30d158 },
+      { label: 'Prayer',                color: 0x30d158 },
+      { label: 'Revival',       color: 0xff9f0a },
+      { label: 'Kingdom training',              color: 0xff375f },
+      { label: 'Equipping center',              color: 0x64d2ff },
+      { label: 'Discipleship',                 color: 0xffd60a },
+      { label: 'Missions',               color: 0xff6961 },
+      { label: 'Education',               color: 0xac8e68 },
+      { label: 'Kingdom business',               color: 0xac8e68 },
+      { label: 'Evangelism',               color: 0xac8e68 },
+      { label: 'Church planting',               color: 0xac8e68 },
+      { label: 'Mercy ministry',               color: 0xac8e68 },
+      { label: 'The second coming',               color: 0xac8e68 },
+    ];
+
+    // Canvas texture helper for text labels
+    function makeTextTexture(text, color) {
+      const c   = document.createElement('canvas');
+      c.width   = 512; c.height = 128;
+      const ctx = c.getContext('2d');
+      ctx.clearRect(0, 0, 512, 128);
+
+      // Pill background
+      const r = 24;
+      ctx.beginPath();
+      ctx.moveTo(r, 0); ctx.lineTo(512 - r, 0);
+      ctx.quadraticCurveTo(512, 0, 512, r);
+      ctx.lineTo(512, 128 - r);
+      ctx.quadraticCurveTo(512, 128, 512 - r, 128);
+      ctx.lineTo(r, 128);
+      ctx.quadraticCurveTo(0, 128, 0, 128 - r);
+      ctx.lineTo(0, r);
+      ctx.quadraticCurveTo(0, 0, r, 0);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(77,159,255,0.12)`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(77,159,255,0.35)`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Text
+      ctx.font = 'bold 52px "SF Pro Display", Helvetica, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#90c8ff';
+      ctx.fillText(text, 256, 64);
+
+      const tex = new THREE.CanvasTexture(c);
+      return tex;
+    }
+
+    const orbitGroup = new THREE.Group();
+    scene.add(orbitGroup);
+
+    const N     = items.length;
+    const RINGS = [
+      { count: 5, radius: 7.5, tilt: 0.3,  speed: 0.18  },
+      { count: 4, radius: 5.0, tilt: -0.5, speed: -0.24 },
+    ];
+
+    // Assign items to rings round-robin
+    let idx = 0;
+    RINGS.forEach(ring => {
+      const ringGroup = new THREE.Group();
+      ringGroup.rotation.x = ring.tilt;
+      orbitGroup.add(ringGroup);
+      ring._group = ringGroup;
+
+      for (let i = 0; i < ring.count && idx < N; i++, idx++) {
+        const item  = items[idx];
+        const angle = (i / ring.count) * Math.PI * 2;
+
+        const planeGeo = new THREE.PlaneGeometry(2.8, 0.7);
+        const planeMat = new THREE.MeshBasicMaterial({
+          map: makeTextTexture(item.label, item.color),
+          transparent: true, side: THREE.DoubleSide,
+          depthWrite: false,
+        });
+        const mesh = new THREE.Mesh(planeGeo, planeMat);
+        mesh.position.x = Math.cos(angle) * ring.radius;
+        mesh.position.z = Math.sin(angle) * ring.radius;
+        mesh.userData.angle  = angle;
+        mesh.userData.radius = ring.radius;
+
+        // Billboard: always face camera
+        ringGroup.add(mesh);
+      }
+      ring._items = Array.from(ringGroup.children);
+    });
+
+    // Orbit ring lines
+    RINGS.forEach(ring => {
+      const pts = [];
+      for (let a = 0; a <= Math.PI * 2; a += 0.05)
+        pts.push(new THREE.Vector3(Math.cos(a) * ring.radius, 0, Math.sin(a) * ring.radius));
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x4d9fff, transparent: true, opacity: 0.18 });
+      ring._group.add(new THREE.Line(lineGeo, lineMat));
+    });
+
+    // Orbit floats freely — no scroll dependency
+
+    const clock2 = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock2.getElapsedTime();
+
+      RINGS.forEach((ring) => {
+        // Pure time-based idle rotation — scroll does not affect this
+        ring._group.rotation.y = t * ring.speed;
+        ring._items && ring._items.forEach(mesh => {
+          mesh.lookAt(camera.position);
+        });
+      });
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  })();
+
+  // ── Metrics counter animation ──────────────────────────────────────────────
+  document.querySelectorAll('.metric-number').forEach(el => {
+    const target = parseFloat(el.dataset.target);
+    const isFloat = String(target).includes('.');
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to({}, {
+          duration: 1.8,
+          ease: 'power2.out',
+          onUpdate() {
+            const v = target * this.progress();
+            el.textContent = isFloat ? v.toFixed(2) : Math.floor(v).toLocaleString();
+          },
+          onComplete() { el.textContent = isFloat ? target.toFixed(2) : target.toLocaleString(); }
+        });
+      }
+    });
+  });
+
+  // ── Principle items — impactful staggered GSAP reveal ────────────────────
+  document.querySelectorAll('.principle-item').forEach((item, i) => {
+    const num  = item.querySelector('.principle-num');
+    const name = item.querySelector('.principle-name');
+    const desc = item.querySelector('.principle-desc');
+    const line = item.querySelector('.p-line');
+
+    ScrollTrigger.create({
+      trigger: item,
+      start: 'top 82%',
+      once: true,
+      onEnter: () => {
+        const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+
+        // 1. Border line sweeps left→right
+        tl.to(line, { scaleX: 1, duration: 0.9, ease: 'power3.inOut' }, 0);
+
+        // 2. Number: shoots in from far left with overshoot
+        tl.fromTo(num,
+          { x: -80, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.7, ease: 'back.out(2.5)' },
+          0.05
+        );
+
+        // 3. Name: slides up from below with a skew snap
+        tl.fromTo(name,
+          { y: 40, opacity: 0, skewX: -6 },
+          { y: 0, opacity: 1, skewX: 0, duration: 0.75 },
+          0.12
+        );
+
+        // 4. Description: fades up softly after name lands
+        tl.fromTo(desc,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.65 },
+          0.32
+        );
+      }
+    });
+  });
+
+  // ── Parallax hero title on scroll ─────────────────────────────────────────
+  gsap.to('.hero-content', {
+    scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true },
+    y: -120, opacity: 0,
+  });
+  // ── Contact form → Google Sheets ─────────────────────────────────────────
+  // 1. Deploy a Google Apps Script web app (see instructions below).
+  // 2. Paste the /exec URL it gives you here:
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyQyGddQ68MbcuGezQev2Ucw7Ir_4ib6i3dQgLvkAtyu0MZVjV6_N95juY27Lf8TuAX/exec';   // ← paste your Apps Script /exec URL here
+
+  document.getElementById('contact-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const btn    = document.getElementById('submit-btn');
+    const status = document.getElementById('form-status');
+
+    const name  = document.getElementById('cf-name').value.trim();
+    const email = document.getElementById('cf-email').value.trim();
+    const age   = document.getElementById('cf-age').value;
+    const heard = document.getElementById('cf-heard').value;
+
+    if (!name || !email) {
+      status.style.color = '#ff375f';
+      status.textContent = 'Please fill in your name and email.';
+      return;
+    }
+
+    if (!SHEET_URL) {
+      status.style.color = '#ff9f0a';
+      status.textContent = 'Form not yet connected — set SHEET_URL in the script.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    status.style.color = 'var(--muted)';
+    status.textContent = 'Sending…';
+
+    try {
+      const params = new URLSearchParams({ name, email, age, heard, date: new Date().toISOString() });
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: params,
+      });
+      // no-cors means we can't read the response — assume success if no throw
+      status.style.color = '#30d158';
+      status.textContent = 'You\'re on the list. Thank you!';
+      e.target.reset();
+    } catch {
+      status.style.color = '#ff375f';
+      status.textContent = 'Something went wrong. Please try again.';
+    } finally {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  });
+
+  // ── Click fireworks ───────────────────────────────────────────────────────
+  (function fireworks() {
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9990;';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const bursts = [];
+    const COLORS = ['#4d9fff','#bf5af2','#ff9f0a','#30d158','#ff375f','#ffffff','#64d2ff','#ffd60a'];
+
+    document.addEventListener('click', e => {
+      const count = 32 + Math.floor(Math.random() * 16);
+      const burst = [];
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+        const speed = 2 + Math.random() * 5;
+        burst.push({
+          x: e.clientX, y: e.clientY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1.5,
+          alpha: 1,
+          color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          size: 1.5 + Math.random() * 2.5,
+          decay: 0.012 + Math.random() * 0.010,
+          trail: [],
+        });
+      }
+      bursts.push(burst);
+    });
+
+    function frame() {
+      requestAnimationFrame(frame);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let b = bursts.length - 1; b >= 0; b--) {
+        const burst = bursts[b];
+        for (let i = burst.length - 1; i >= 0; i--) {
+          const p = burst[i];
+          p.trail.push({ x: p.x, y: p.y, alpha: p.alpha });
+          if (p.trail.length > 6) p.trail.shift();
+          p.x  += p.vx; p.y  += p.vy;
+          p.vy += 0.14;
+          p.vx *= 0.97; p.vy *= 0.97;
+          p.alpha -= p.decay;
+          if (p.alpha <= 0) { burst.splice(i, 1); continue; }
+          // Trail
+          p.trail.forEach((tp, ti) => {
+            ctx.beginPath();
+            ctx.arc(tp.x, tp.y, p.size * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = tp.alpha * (ti / p.trail.length) * 0.35;
+            ctx.fill();
+          });
+          // Head
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.alpha;
+          ctx.fill();
+        }
+        if (burst.length === 0) bursts.splice(b, 1);
+      }
+      ctx.globalAlpha = 1;
+    }
+    frame();
+  })();
+
+  </script>
+</body>
+</html>
