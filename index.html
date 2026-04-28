@@ -139,8 +139,8 @@
       opacity: 0;
     }
     .hero-title {
-      font-size: clamp(52px, 8vw, 112px);
-      font-weight: 700; letter-spacing: -3px; line-height: 2;
+      font-size: clamp(24px, 3.2vw, 44px);
+      font-weight: 300; letter-spacing: -0.5px; line-height: 1.4;
       background: linear-gradient(160deg, #ffffff 30%, #90b4d0 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -286,35 +286,78 @@
       font-size: clamp(40px, 5vw, 68px);
       font-weight: 700; letter-spacing: -2px; line-height: 1.05;
     }
-    .principle-list { display: flex; flex-direction: column; }
-    .principle-item {
-      display: grid; grid-template-columns: 56px 1fr 1fr;
-      align-items: start; gap: 48px;
-      padding: 40px 0;
-      position: relative;
-      overflow: hidden;
+    /* ─── Declarations ─────────────────────────────────────────────── */
+    .decl-why {
+      max-width: 700px; margin: 0 auto 80px; text-align: center;
     }
-    /* Animated sweep line replaces static border */
-    .principle-item .p-line {
-      position: absolute; bottom: 0; left: 0;
-      height: 1px; width: 100%;
-      background: var(--border);
-      transform: scaleX(0); transform-origin: left;
+    .decl-why-text {
+      font-size: 16px; font-weight: 300; color: var(--muted);
+      line-height: 1.85; margin-bottom: 48px;
     }
-    .principle-num {
-      font-size: 13px; font-weight: 500; color: var(--muted);
-      letter-spacing: 1px; padding-top: 4px;
-      opacity: 0;
+    .decl-defs {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
     }
-    .principle-name {
-      font-size: clamp(22px, 2.5vw, 32px);
-      font-weight: 600; letter-spacing: -0.8px;
-      opacity: 0; transform: translateY(28px);
+    .decl-def { padding: 28px 32px; background: var(--card); text-align: left; }
+    .decl-def:first-child { border-right: 1px solid var(--border); }
+    .decl-def-label {
+      font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+      font-weight: 600; margin-bottom: 10px;
     }
-    .principle-desc {
-      font-size: 15px; font-weight: 300; color: var(--muted); line-height: 1.7;
-      opacity: 0;
+    .decl-def-label.lbl-declare { color: var(--accent); }
+    .decl-def-label.lbl-decree  { color: var(--accent2); }
+    .decl-def-text { font-size: 14px; font-weight: 300; color: var(--muted); line-height: 1.7; }
+
+    .decl-sections { display: flex; flex-direction: column; gap: 96px; max-width: 820px; margin: 0 auto; }
+
+    .decl-section-tag {
+      display: flex; align-items: center; gap: 16px;
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent2); font-weight: 600; margin-bottom: 56px;
     }
+    .decl-section-tag::before, .decl-section-tag::after {
+      content: ''; display: block; flex: 1; height: 1px;
+      background: rgba(191,90,242,0.25);
+    }
+
+    .decl-prayer {
+      padding: 36px 44px; border-radius: 8px;
+      border: 1px solid rgba(77,159,255,0.18);
+      background: rgba(77,159,255,0.04);
+      margin-bottom: 56px;
+    }
+    .decl-prayer-label {
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent); font-weight: 500; margin-bottom: 20px;
+    }
+    .decl-prayer p {
+      font-size: 15px; font-weight: 300; color: rgba(240,242,245,0.85);
+      line-height: 2.1; font-style: italic;
+    }
+    .decl-prayer p + p { margin-top: 20px; }
+
+    .decl-categories { display: flex; flex-direction: column; }
+    .decl-category { padding: 40px 0; border-top: 1px solid var(--border); }
+    .decl-category:last-child { border-bottom: 1px solid var(--border); }
+    .decl-cat-title {
+      font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--muted); font-weight: 500; margin-bottom: 24px;
+    }
+    .decl-lines { display: flex; flex-direction: column; }
+    .decl-line {
+      display: flex; align-items: baseline; gap: 16px;
+      padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .decl-line:last-child { border-bottom: none; }
+    .decl-badge {
+      font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+      font-weight: 700; flex-shrink: 0; width: 58px; padding-top: 3px;
+    }
+    .decl-badge.declare { color: var(--accent); }
+    .decl-badge.decree  { color: var(--accent2); }
+    .decl-text { font-size: 15px; font-weight: 300; color: var(--fg); line-height: 1.65; flex: 1; }
+    .decl-ref { font-size: 11px; color: var(--muted); flex-shrink: 0; font-style: italic; white-space: nowrap; }
+    .decl-closing { margin-top: 56px; }
 
     /* ─── Contact Form ──────────────────────────────────────────────────── */
     #contact {
@@ -354,6 +397,17 @@
     }
     .form-field select { cursor: pointer; }
     .form-field input::placeholder { color: var(--muted); }
+    .form-field textarea {
+      background: transparent;
+      border: none; outline: none;
+      color: var(--fg);
+      font-family: var(--font);
+      font-size: 17px; font-weight: 300;
+      padding: 0; resize: none;
+      width: 100%; min-height: 120px;
+      line-height: 1.6;
+    }
+    .form-field textarea::placeholder { color: var(--muted); }
     /* Animated focus underline */
     .form-field::after {
       content: ''; position: absolute; bottom: -1px; left: 0;
@@ -400,6 +454,14 @@
       border-top: 1px solid var(--border);
     }
     .about-inner { max-width: 1100px; margin: 0 auto; }
+    .about-ministry-intro {
+      max-width: 720px; margin-bottom: 72px;
+      display: flex; flex-direction: column; gap: 20px;
+      padding-bottom: 64px; border-bottom: 1px solid var(--border);
+    }
+    .about-ministry-intro p {
+      font-size: 16px; font-weight: 300; color: var(--muted); line-height: 1.8;
+    }
     .author-list { display: flex; flex-direction: column; gap: 2px; }
     .author-card-main {
       display: grid; grid-template-columns: 180px 1fr;
@@ -481,15 +543,11 @@
       /* Principles — collapse 3-col to 2-col: [num | name] then desc full-width */
       #principles { padding: 100px 20px; }
       .principles-header { margin-bottom: 56px; }
-      .principle-item {
-        grid-template-columns: 40px 1fr;
-        gap: 12px 16px;
-        padding: 32px 0;
-      }
-      .principle-num  { grid-column: 1; grid-row: 1; }
-      .principle-name { grid-column: 2; grid-row: 1; font-size: 20px; }
-      .principle-desc { grid-column: 1 / -1; grid-row: 2; }
-      .p-line         { grid-column: 1 / -1; }
+      .decl-defs { grid-template-columns: 1fr; }
+      .decl-def:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+      .decl-prayer { padding: 24px 20px; }
+      .decl-line { flex-wrap: wrap; gap: 8px; }
+      .decl-ref { padding-left: 74px; }
 
       /* Contact */
       #contact { padding: 100px 20px; }
@@ -499,13 +557,21 @@
 
       /* About section */
       #about-section { padding: 100px 20px; }
+      .about-ministry-intro { margin-bottom: 48px; padding-bottom: 48px; }
+      .about-ministry-intro p { font-size: 15px; }
       .author-card-main {
         grid-template-columns: 1fr;
         gap: 28px;
         padding: 48px 0;
       }
-      .author-photo-box { width: 100px; height: 100px; }
-      .author-initials  { font-size: 32px; }
+      .author-photo-box { width: 140px; height: 140px; }
+      .author-initials  { font-size: 36px; }
+
+      /* Declarations */
+      .decl-sections { gap: 64px; }
+      .decl-section-tag { font-size: 9px; }
+      .decl-text { font-size: 14px; }
+      .decl-badge { width: 50px; font-size: 8px; }
 
       /* Footer */
       footer {
@@ -552,8 +618,8 @@
   <section id="hero">
     <canvas id="hero-canvas"></canvas>
     <div class="hero-content">
-      <p class="hero-eyebrow">Equipping Leaders for Awakening</p>
-      <h1 class="hero-title">Revival Training Ground</h1>
+      <p class="hero-eyebrow">The Teaching Ministry of Joanne S. and Ryan C. Lee</p>
+      <h1 class="hero-title">Where the Word and Spirit Move as One</h1>
       <p class="hero-sub">
         Teachings on revival, fear of God, and living a supernatural life.
       </p>
@@ -617,46 +683,175 @@
   <!-- ── Principles ───────────────────────────────────────────────────────── -->
   <section id="principles">
     <div class="principles-header">
-      <p class="section-eyebrow">SPEAK IT OUT</p>
-      <h2 class="section-title">Declarations of Faith & Truth</h2>
+      <p class="section-eyebrow">Why We Declare and Decree</p>
+      <h2 class="section-title">Declarations of Faith &amp; Truth</h2>
     </div>
-    <div class="principle-list">
-      <div class="principle-item">
-        <span class="principle-num">01</span>
-        <span class="principle-name">Dependency Rule</span>
-        <p class="principle-desc">Source code dependencies point only inward — toward policy, never toward details. The database, the web layer, and third-party frameworks are all plugins.</p>
-        <span class="p-line"></span>
+
+    <div class="decl-why">
+      <p class="decl-why-text">We align our words with God because Scripture teaches that life and death are in the power of the tongue (Proverbs 18:21), that we believe and confess (Romans 10:9–10), and that God's Word accomplishes what He sends it to do (Isaiah 55:11).</p>
+      <div class="decl-defs">
+        <div class="decl-def">
+          <p class="decl-def-label lbl-declare">Declarations</p>
+          <p class="decl-def-text">Proclaim what is true — aligning our words with the reality of God's Word and who He says we are.</p>
+        </div>
+        <div class="decl-def">
+          <p class="decl-def-label lbl-decree">Decrees</p>
+          <p class="decl-def-text">Enforce what God has already established — releasing His authority through the name of Jesus. (Luke 10:19)</p>
+        </div>
       </div>
-      <div class="principle-item">
-        <span class="principle-num">02</span>
-        <span class="principle-name">Single Responsibility</span>
-        <p class="principle-desc">A component has one reason to change. If you can name two stakeholders who would each want it changed for different reasons, split it.</p>
-        <span class="p-line"></span>
+    </div>
+
+    <div class="decl-sections">
+
+      <!-- ── Short Daily ─────────────────────────────────────────────── -->
+      <div class="decl-section">
+        <div class="decl-section-tag">Short Daily &mdash; 3 to 5 Minutes</div>
+
+        <div class="decl-prayer">
+          <p class="decl-prayer-label">Prayer</p>
+          <p>Father, I come into agreement with Your Word today.<br>
+          Let Your Kingdom come and Your will be done in my life.<br>
+          I align my heart and my words with heaven.</p>
+        </div>
+
+        <div class="decl-categories">
+          <div class="decl-category">
+            <p class="decl-cat-title">Declarations</p>
+            <div class="decl-lines">
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am a child of God, loved, chosen, and secure in Christ.</span><span class="decl-ref">Eph 1:4–5</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am a new creation; the old has passed away and the new has come.</span><span class="decl-ref">2 Cor 5:17</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I walk in the authority of Jesus and live from a place of victory.</span><span class="decl-ref">Eph 2:6</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">The truth of John 14:12 — as I believe in Jesus, His works continue through my life by His Spirit.</span><span class="decl-ref">John 14:12</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">By the stripes of Jesus, I am healed and strengthened.</span><span class="decl-ref">1 Pet 2:24</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">The peace of God guards my heart and mind.</span><span class="decl-ref">Phil 4:7</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">God is my source and He supplies all my needs.</span><span class="decl-ref">Phil 4:19</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am free from fear, lack, and the love of money.</span></div>
+            </div>
+          </div>
+
+          <div class="decl-category">
+            <p class="decl-cat-title">Decrees</p>
+            <div class="decl-lines">
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Every plan of the enemy against my life is canceled.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">No weapon formed against me shall prosper.</span><span class="decl-ref">Isa 54:17</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Sickness, fear, and confusion have no place in me.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">My life is aligned with God's purposes and His timing.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">I carry the presence of God and my life impacts others for His glory.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Every chain is broken and every stronghold is removed in Jesus' name.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="decl-closing">
+          <div class="decl-prayer">
+            <p class="decl-prayer-label">Closing Prayer</p>
+            <p>Father, establish Your Word in my life today.<br>
+            Let my words carry truth, faith, and authority.<br>
+            In the name of Jesus, amen.</p>
+          </div>
+        </div>
       </div>
-      <div class="principle-item">
-        <span class="principle-num">03</span>
-        <span class="principle-name">Names Reveal Intent</span>
-        <p class="principle-desc">If you need a comment to explain a name, rename it. Classes are nouns. Methods are verbs. One word per concept, consistently across the codebase.</p>
-        <span class="p-line"></span>
+
+      <!-- ── Deep Daily & Weekly ─────────────────────────────────────── -->
+      <div class="decl-section">
+        <div class="decl-section-tag">Deep Daily &amp; Weekly Practice</div>
+
+        <div class="decl-prayer">
+          <p class="decl-prayer-label">Opening Prayer</p>
+          <p>Father, thank You for Your Word.<br>
+          I come into agreement with heaven today.<br>
+          Let Your Kingdom come and Your will be done in my life.</p>
+          <p>Renew my mind, strengthen my faith, and align my words with truth.<br>
+          In Jesus' name, amen.</p>
+        </div>
+
+        <div class="decl-categories">
+          <div class="decl-category">
+            <p class="decl-cat-title">Identity in Christ</p>
+            <div class="decl-lines">
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am fearfully and wonderfully made.</span><span class="decl-ref">Ps 139:14</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am a new creation in Christ.</span><span class="decl-ref">2 Cor 5:17</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am chosen, loved, and accepted.</span><span class="decl-ref">Eph 1:4–5</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am a child of God, led by His Spirit.</span><span class="decl-ref">Rom 8:14–15</span></div>
+            </div>
+          </div>
+
+          <div class="decl-category">
+            <p class="decl-cat-title">Authority, Faith, and Works of Christ</p>
+            <div class="decl-lines">
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">All authority belongs to Jesus, and I walk in His authority.</span><span class="decl-ref">Matt 28:18–19</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am seated with Christ in heavenly places.</span><span class="decl-ref">Eph 2:6</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">The truth of John 14:12 — as I believe in Jesus, the works He did I will do also, through His power at work in me.</span><span class="decl-ref">John 14:12</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am a vessel for the works of Christ on the earth.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Every power of darkness must bow to the name of Jesus.</span><span class="decl-ref">Luke 10:19</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">No weapon formed against me shall prosper.</span><span class="decl-ref">Isa 54:17</span></div>
+            </div>
+          </div>
+
+          <div class="decl-category">
+            <p class="decl-cat-title">Health and Healing</p>
+            <div class="decl-lines">
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">By the stripes of Jesus, I am healed.</span><span class="decl-ref">1 Pet 2:24</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">The life of God flows through my body.</span><span class="decl-ref">Prov 4:20–22</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Sickness and disease have no place in me.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Strength and restoration are established in my body.</span></div>
+            </div>
+          </div>
+
+          <div class="decl-category">
+            <p class="decl-cat-title">Peace and Protection</p>
+            <div class="decl-lines">
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">The peace of God guards my heart and mind.</span><span class="decl-ref">Phil 4:7</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">Fear and anxiety have no authority over me.</span><span class="decl-ref">2 Tim 1:7</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">The Lord is my refuge and covering.</span><span class="decl-ref">Ps 91</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Angels surround and protect me.</span><span class="decl-ref">Ps 91:11</span></div>
+            </div>
+          </div>
+
+          <div class="decl-category">
+            <p class="decl-cat-title">Provision and Freedom</p>
+            <div class="decl-lines">
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">God supplies all my needs.</span><span class="decl-ref">Phil 4:19</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I walk in favor and open doors.</span><span class="decl-ref">Rev 3:8</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am free from fear of lack and from a poverty mindset.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Provision flows and lack is broken.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">My life is aligned with God's provision and purpose.</span></div>
+            </div>
+          </div>
+
+          <div class="decl-category">
+            <p class="decl-cat-title">Spiritual Growth and Revival</p>
+            <div class="decl-lines">
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">My mind is renewed daily.</span><span class="decl-ref">Rom 12:2</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I walk in boldness and faith.</span><span class="decl-ref">Acts 4:29–31</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">The Spirit of God empowers me daily.</span><span class="decl-ref">Rom 8:11</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Revival flows through my life.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Lives are transformed and God is glorified through me.</span><span class="decl-ref">Hab 2:14</span></div>
+            </div>
+          </div>
+
+          <div class="decl-category">
+            <p class="decl-cat-title">Victory</p>
+            <div class="decl-lines">
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">I am more than a conqueror through Christ.</span><span class="decl-ref">Rom 8:37</span></div>
+              <div class="decl-line"><span class="decl-badge declare">Declare</span><span class="decl-text">Every battle ends in victory through Him.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">Every chain is broken and every stronghold is removed.</span></div>
+              <div class="decl-line"><span class="decl-badge decree">Decree</span><span class="decl-text">My words carry life and release God's purposes.</span><span class="decl-ref">Prov 18:21</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="decl-closing">
+          <div class="decl-prayer">
+            <p class="decl-prayer-label">Closing Prayer</p>
+            <p>Father, thank You that You are at work in me and through me.<br>
+            Establish Your Word in my life and let it bear lasting fruit.</p>
+            <p>Let my life reflect Jesus in every way.<br>
+            In His mighty name, amen.</p>
+          </div>
+        </div>
       </div>
-      <div class="principle-item">
-        <span class="principle-num">04</span>
-        <span class="principle-name">Measure Tail Latency</span>
-        <p class="principle-desc">p99 and p999, not averages. Describe load before describing performance. The edge cases you ignore are the ones that page on-call at 3 AM.</p>
-        <span class="p-line"></span>
-      </div>
-      <div class="principle-item">
-        <span class="principle-num">05</span>
-        <span class="principle-name">Idempotent by Design</span>
-        <p class="principle-desc">Build exactly-once semantics into the application, not the transport. Operations that can be retried safely are operations that survive real-world failure.</p>
-        <span class="p-line"></span>
-      </div>
-      <div class="principle-item">
-        <span class="principle-num">06</span>
-        <span class="principle-name">Tests Are First-Class</span>
-        <p class="principle-desc">Clean, readable, fast, independent, self-validating. Write the test before or alongside the code. A test that is hard to write is a smell about the design.</p>
-        <span class="p-line"></span>
-      </div>
+
     </div>
   </section>
 
@@ -664,44 +859,66 @@
   <section id="about-section">
     <div class="about-inner">
       <p class="section-eyebrow">The People Behind the Mission</p>
-      <h2 class="section-title" style="margin-bottom:80px;">About the Authors</h2>
+      <h2 class="section-title" style="margin-bottom:56px;">About the Authors</h2>
+
+      <div class="about-ministry-intro">
+        <p>
+          Pastors Joanne and Ryan Lee are the founding pastors of Blessed International, a global
+          apostolic movement marked by prayer, revival, and a passion to see the nations transformed
+          by the power of God. While faithfully serving in a Korean-American church in Anaheim,
+          California, their lives were radically interrupted by a profound visitation of the Holy
+          Spirit. In that defining moment, God called them into His purposes for an end-time move
+          that would extend beyond local ministry and touch nations around the world.
+        </p>
+        <p>
+          In simple obedience, they began gathering with a small group in their living room to seek
+          the Lord in prayer. On August 15, 2004, Blessed International was birthed in that humble
+          setting. As of 2026, Blessed International includes over 200 churches and equipping centers
+          across 16 nations, with its headquarters in Santa Ana, California.
+        </p>
+        <p>
+          Together, Pastors Joanne and Ryan continue to lead Blessed International with a singular
+          vision: to see lives awakened, the Church strengthened and prepared, and the nations reached
+          through the transforming power of the Holy Spirit.
+        </p>
+      </div>
 
       <div class="author-list">
 
         <div class="author-card-main">
           <div class="author-photo-box">
-            <!-- Drop in: <img src="authors/author1.jpg" alt="Author Name"> -->
-            <span class="author-initials">A1</span>
+            <img src="authors/ryan-lee.png" alt="Pastor Ryan Lee" style="width:100%;height:100%;object-fit:cover;">
           </div>
           <div class="author-info">
-            <p class="author-role-tag">Lead Author</p>
-            <h3 class="author-name-text">Author Name</h3>
+            <p class="author-role-tag">Co-Lead Pastor · Blessed International</p>
+            <h3 class="author-name-text">Pastor Ryan Lee</h3>
             <p class="author-bio-text">
-              A brief biography about this author goes here — their calling,
-              ministry background, and what drives their writing.
+              Pastor Ryan practiced law for ten years before responding fully to the call of ministry.
+              He later earned his Master of Divinity from Talbot Theological Seminary and was ordained
+              as a pastor. His teaching carries both theological depth and practical clarity, equipping
+              believers to walk out their calling with conviction and purpose.
             </p>
             <div class="author-book-tags">
               <span class="author-book-tag">Daily Supernatural</span>
               <span class="author-book-tag">Activation Guide</span>
+              <span class="author-book-tag">Guarding the Fire</span>
             </div>
           </div>
         </div>
 
         <div class="author-card-main">
           <div class="author-photo-box">
-            <!-- Drop in: <img src="authors/author2.jpg" alt="Author Name"> -->
-            <span class="author-initials">A2</span>
+            <img src="authors/joanne-lee.png" alt="Pastor Joanne Lee" style="width:100%;height:100%;object-fit:cover;">
           </div>
           <div class="author-info">
-            <p class="author-role-tag">Contributing Author</p>
-            <h3 class="author-name-text">Author Name</h3>
+            <p class="author-role-tag">Co-Lead Pastor · Blessed International</p>
+            <h3 class="author-name-text">Pastor Joanne Lee</h3>
             <p class="author-bio-text">
-              A brief biography about this author goes here — their calling,
-              ministry background, and what drives their writing.
+              Pastor Joanne holds a Master of Arts in Piano Performance from the University of
+              Southern California and was ordained as a pastor by the late Dr. James Maloney. Her
+              life and ministry are marked by a deep devotion to the presence of God and a commitment
+              to raising up believers in intimacy and spiritual authority.
             </p>
-            <div class="author-book-tags">
-              <span class="author-book-tag">Guarding the Fire</span>
-            </div>
           </div>
         </div>
 
@@ -752,6 +969,10 @@
             <option>Other</option>
           </select>
         </div>
+      </div>
+      <div class="form-field" style="margin-top:8px;">
+        <label for="cf-message">Message (optional)</label>
+        <textarea id="cf-message" placeholder="Any questions, notes, or prayer requests…"></textarea>
       </div>
       <div class="form-submit">
         <button class="submit-btn" type="submit" id="submit-btn">
@@ -1342,44 +1563,14 @@
   });
 
   // ── Principle items — impactful staggered GSAP reveal ────────────────────
-  document.querySelectorAll('.principle-item').forEach((item, i) => {
-    const num  = item.querySelector('.principle-num');
-    const name = item.querySelector('.principle-name');
-    const desc = item.querySelector('.principle-desc');
-    const line = item.querySelector('.p-line');
-
-    ScrollTrigger.create({
-      trigger: item,
-      start: 'top 82%',
-      once: true,
-      onEnter: () => {
-        const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
-
-        // 1. Border line sweeps left→right
-        tl.to(line, { scaleX: 1, duration: 0.9, ease: 'power3.inOut' }, 0);
-
-        // 2. Number: shoots in from far left with overshoot
-        tl.fromTo(num,
-          { x: -80, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.7, ease: 'back.out(2.5)' },
-          0.05
-        );
-
-        // 3. Name: slides up from below with a skew snap
-        tl.fromTo(name,
-          { y: 40, opacity: 0, skewX: -6 },
-          { y: 0, opacity: 1, skewX: 0, duration: 0.75 },
-          0.12
-        );
-
-        // 4. Description: fades up softly after name lands
-        tl.fromTo(desc,
-          { y: 20, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.65 },
-          0.32
-        );
+  document.querySelectorAll('.decl-why, .decl-section-tag, .decl-prayer, .decl-category').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 24 },
+      {
+        opacity: 1, y: 0, duration: 0.75, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true }
       }
-    });
+    );
   });
 
   // ── Parallax hero title on scroll ─────────────────────────────────────────
@@ -1398,10 +1589,11 @@
     const btn    = document.getElementById('submit-btn');
     const status = document.getElementById('form-status');
 
-    const name  = document.getElementById('cf-name').value.trim();
-    const email = document.getElementById('cf-email').value.trim();
-    const age   = document.getElementById('cf-age').value;
-    const heard = document.getElementById('cf-heard').value;
+    const name    = document.getElementById('cf-name').value.trim();
+    const email   = document.getElementById('cf-email').value.trim();
+    const age     = document.getElementById('cf-age').value;
+    const heard   = document.getElementById('cf-heard').value;
+    const message = document.getElementById('cf-message').value.trim();
 
     if (!name || !email) {
       status.style.color = '#ff375f';
@@ -1421,7 +1613,7 @@
     status.textContent = 'Sending…';
 
     try {
-      const params = new URLSearchParams({ name, email, age, heard, date: new Date().toISOString() });
+      const params = new URLSearchParams({ name, email, age, heard, message, date: new Date().toISOString() });
       await fetch(SHEET_URL, {
         method: 'POST',
         mode: 'no-cors',

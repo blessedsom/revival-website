@@ -92,6 +92,20 @@
       line-height: 1.7; max-width: 640px; margin-bottom: 100px;
     }
 
+    /* ─── Ministry intro ── */
+    .ministry-intro {
+      max-width: 720px;
+      margin-bottom: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-bottom: 72px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ministry-intro p {
+      font-size: 16px; font-weight: 300; color: var(--muted); line-height: 1.8;
+    }
+
     /* ─── Author cards ── */
     .authors { display: flex; flex-direction: column; gap: 2px; }
 
@@ -174,13 +188,16 @@
 
       main { padding: 100px 20px 80px; }
 
+      .ministry-intro { margin-bottom: 48px; padding-bottom: 48px; }
+      .ministry-intro p { font-size: 15px; }
+
       .author-card {
         grid-template-columns: 1fr;
         gap: 24px;
         padding: 48px 0;
       }
-      .author-photo { width: 80px; height: 80px; border-radius: 12px; }
-      .author-photo-placeholder { font-size: 32px; }
+      .author-photo { width: 140px; height: 140px; border-radius: 12px; }
+      .author-photo-placeholder { font-size: 40px; }
 
       footer {
         padding: 40px 20px;
@@ -215,44 +232,64 @@
       committed to equipping a generation for supernatural encounter.
     </p>
 
+    <div class="ministry-intro">
+      <p>
+        Pastors Joanne and Ryan Lee are the founding pastors of Blessed International, a global
+        apostolic movement marked by prayer, revival, and a passion to see the nations transformed
+        by the power of God. While faithfully serving in a Korean-American church in Anaheim,
+        California, their lives were radically interrupted by a profound visitation of the Holy
+        Spirit. In that defining moment, God called them into His purposes for an end-time move
+        that would extend beyond local ministry and touch nations around the world.
+      </p>
+      <p>
+        In simple obedience, they began gathering with a small group in their living room to seek
+        the Lord in prayer. On August 15, 2004, Blessed International was birthed in that humble
+        setting. As of 2026, Blessed International includes over 200 churches and equipping centers
+        across 16 nations, with its headquarters in Santa Ana, California.
+      </p>
+      <p>
+        Together, Pastors Joanne and Ryan continue to lead Blessed International with a singular
+        vision: to see lives awakened, the Church strengthened and prepared, and the nations reached
+        through the transforming power of the Holy Spirit.
+      </p>
+    </div>
+
     <div class="authors">
 
       <div class="author-card">
         <div class="author-photo">
-          <!-- Replace with: <img src="authors/author1.jpg" alt="Author Name"> -->
-          <span class="author-photo-placeholder">A1</span>
+          <img src="authors/ryan-lee.png" alt="Pastor Ryan Lee">
         </div>
         <div class="author-info">
-          <p class="author-role">Lead Author</p>
-          <h2 class="author-name">Author Name</h2>
+          <p class="author-role">Co-Lead Pastor · Blessed International</p>
+          <h2 class="author-name">Pastor Ryan Lee</h2>
           <p class="author-bio">
-            A brief biography about this author goes here. Describe their background,
-            their calling, their ministry experience, and what drives their writing.
-            This space is for the story behind the books.
+            Pastor Ryan practiced law for ten years before responding fully to the call of ministry.
+            He later earned his Master of Divinity from Talbot Theological Seminary and was ordained
+            as a pastor. His teaching carries both theological depth and practical clarity, equipping
+            believers to walk out their calling with conviction and purpose.
           </p>
           <div class="author-books">
             <span class="author-book-tag">Daily Supernatural</span>
             <span class="author-book-tag">Activation Guide</span>
+            <span class="author-book-tag">Guarding the Fire</span>
           </div>
         </div>
       </div>
 
       <div class="author-card">
         <div class="author-photo">
-          <!-- Replace with: <img src="authors/author2.jpg" alt="Author Name"> -->
-          <span class="author-photo-placeholder">A2</span>
+          <img src="authors/joanne-lee.png" alt="Pastor Joanne Lee">
         </div>
         <div class="author-info">
-          <p class="author-role">Contributing Author</p>
-          <h2 class="author-name">Author Name</h2>
+          <p class="author-role">Co-Lead Pastor · Blessed International</p>
+          <h2 class="author-name">Pastor Joanne Lee</h2>
           <p class="author-bio">
-            A brief biography about this author goes here. Describe their background,
-            their calling, their ministry experience, and what drives their writing.
-            This space is for the story behind the books.
+            Pastor Joanne holds a Master of Arts in Piano Performance from the University of
+            Southern California and was ordained as a pastor by the late Dr. James Maloney. Her life
+            and ministry are marked by a deep devotion to the presence of God and a commitment to
+            raising up believers in intimacy and spiritual authority.
           </p>
-          <div class="author-books">
-            <span class="author-book-tag">Guarding the Fire</span>
-          </div>
         </div>
       </div>
 
