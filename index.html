@@ -200,6 +200,7 @@
       display: flex; flex-direction: column; gap: 6px;
       pointer-events: none;
     }
+    .book-meta .book-link { pointer-events: auto; }
     .book-label {
       font-size: 10px; letter-spacing: 3.5px; text-transform: uppercase;
       color: var(--accent2); font-weight: 500;
@@ -211,7 +212,21 @@
     .book-body {
       font-size: 12px; font-weight: 300; color: var(--muted);
       line-height: 1.65; max-width: 300px;
+      margin-bottom: 16px;
     }
+    .book-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 0.2px;
+      transition: color 0.2s, transform 0.15s;
+    }
+    .book-link:hover { color: #fff; transform: translateX(2px); }
+    .book-link.hidden { display: none; }
 
     /* Counter top-right */
     .book-counter {
@@ -645,6 +660,7 @@
         <p class="book-label">RYAN C. LEE</p>
         <h2 class="book-headline" id="book-headline">Clean Code</h2>
         <p class="book-body" id="book-body">Names reveal intent. Functions do one thing. Tests are first-class. Every principle applied to every line we ship.</p>
+        <a id="book-link" class="book-link" href="#" target="_blank" rel="noopener noreferrer">Buy on Amazon</a>
       </div>
       <!-- Top-right counter -->
       <div class="book-counter"><span id="book-idx">01</span> / 03</div>
@@ -1114,7 +1130,7 @@
         grad:  ['#0a1a40', '#1a3a8a'], accent: '#2997ff', accentHex: 0x2997ff,
         spine: 0x071128,
         imageSrc: 'book-covers/clean-code.jpg',
-        url: '',   // ← paste book link here
+        url: 'https://www.amazon.com/dp/B0H3DBDKJF/ref=sr_1_1?crid=3LYTZB1KOWG7Y&dib=eyJ2IjoiMSJ9.8gxvumtA9GcIrKlBAM-5M4QcoQCBlHi-dxFpiT1aySE.hxAiXpu-dFIzExmrw0DSmxdPAtJVgRDM5DaSv9NHxfw&dib_tag=se&keywords=%22daily%2Bsupernatural%22%2Bryan%2Blee&qid=1780104201&sprefix=daily%2Bsupernatural%2Bryan%2Blee%2Caps%2C174&sr=8-1',   // ← paste book link here
       },
       {
         title: 'Daily\nSupernatural\n-\nCompanion\nActivation\nGuide', author: 'Ryan C. Lee',
@@ -1122,7 +1138,7 @@
         grad:  ['#18002e', '#3a0066'], accent: '#bf5af2', accentHex: 0xbf5af2,
         spine: 0x0e001c,
         imageSrc: 'book-covers/clean-architecture.jpg',
-        url: '',   // ← paste book link here
+        url: 'https://www.amazon.com/gp/product/B0H3CPSYPR/ref=ewc_pr_img_1?smid=ATVPDKIKX0DER&psc=1',   // ← paste book link here
       },
       {
         title: 'Guarding\nthe\nFire', author: 'Ryan C. Lee',
@@ -1314,6 +1330,7 @@
     ];
     const headline = document.getElementById('book-headline');
     const bodyEl   = document.getElementById('book-body');
+    const linkEl   = document.getElementById('book-link');
     const idxEl    = document.getElementById('book-idx');
     let lastFront  = -1;
 
@@ -1355,8 +1372,18 @@
         lastFront = frontIdx;
         gsap.fromTo(headline, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out' });
         gsap.fromTo(bodyEl,   { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.65, delay: 0.1, ease: 'power3.out' });
+        gsap.fromTo(linkEl,   { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.65, delay: 0.15, ease: 'power3.out' });
         headline.textContent = bookTexts[frontIdx].headline;
         bodyEl.textContent   = bookTexts[frontIdx].body;
+        const bookUrl = BOOKS[frontIdx].url;
+        if (bookUrl) {
+          linkEl.href = bookUrl;
+          linkEl.classList.remove('hidden');
+          linkEl.textContent = 'Buy on Amazon';
+        } else {
+          linkEl.href = '#';
+          linkEl.classList.add('hidden');
+        }
         idxEl.textContent    = String(frontIdx + 1).padStart(2, '0');
       }
 
